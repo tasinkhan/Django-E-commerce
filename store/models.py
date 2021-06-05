@@ -16,6 +16,9 @@ class Product(models.Model):
 
     def get_url(self):
         return reverse('store:product_detail', args=[self.category.slug, self.slug])
+    
+    class Meta:
+        ordering = ['-id']
 
     def __str__(self):
         return self.product_name
