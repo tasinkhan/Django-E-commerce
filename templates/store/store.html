@@ -4,7 +4,11 @@
 <!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop bg">
     <div class="container">
+        {% if 'search' in request.path %}
+        <h2 class="title-page">Search Result</h2>
+        {% else %}
         <h2 class="title-page">Our Store</h2>
+        {% endif %}
         
     </div> <!-- container //  -->
     </section>
@@ -124,26 +128,31 @@
     </header><!-- sect-heading -->
     
     <div class="row">
-        {% for product in products%}
-        <div class="col-md-4">
-            <figure class="card card-product-grid">
-                <div class="img-wrap"> 
-                    
-                 <a href="{{ product.get_url }}"><img src="{{product.images.url}}"></a>   
-                    
-                </div> <!-- img-wrap.// -->
-                <figcaption class="info-wrap">
-                    <div class="fix-height">
-                        <a href="{{ product.get_url }}" class="title">{{product.product_name}}</a>
-                        <div class="price-wrap mt-2">
-                            <span class="price">{{product.price}} BDT</span>
-                        </div> <!-- price-wrap.// -->
-                    </div>
-                    <a href="{{ product.get_url }}" class="btn btn-block btn-primary">Product Details</a>
-                </figcaption>
-            </figure>
-        </div>
-        {% endfor %} <!-- col.// -->
+        {% if products %}
+            {% for product in products%}
+            <div class="col-md-4">
+                <figure class="card card-product-grid">
+                    <div class="img-wrap"> 
+                        
+                    <a href="{{ product.get_url }}"><img src="{{product.images.url}}"></a>   
+                        
+                    </div> <!-- img-wrap.// -->
+                    <figcaption class="info-wrap">
+                        <div class="fix-height">
+                            <a href="{{ product.get_url }}" class="title">{{product.product_name}}</a>
+                            <div class="price-wrap mt-2">
+                                <span class="price">{{product.price}} BDT</span>
+                            </div> <!-- price-wrap.// -->
+                        </div>
+                        <a href="{{ product.get_url }}" class="btn btn-block btn-primary">Product Details</a>
+                    </figcaption>
+                </figure>
+            </div>
+            {% endfor %}
+        {% else %}
+        <h4>No product found with this keyword. Please search with another keyword </h4>
+
+        {% endif %} <!-- col.// -->
     </div> <!-- row end.// -->
     
     
