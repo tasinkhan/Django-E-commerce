@@ -26,6 +26,8 @@ class Product(models.Model):
 Variation_category_choice = (
     ('color','color'),
     ('size', 'size'),
+    ('ram', 'ram'),
+    ('rom', 'rom'),
 )
 
 class VariationManager(models.Manager):
@@ -44,5 +46,5 @@ class Variation(models.Model):
 
     objects = VariationManager()
 
-    def __unicode__(self):
-        self.product
+    def __str__(self):
+        return self.variation_values
