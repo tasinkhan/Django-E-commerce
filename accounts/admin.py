@@ -6,6 +6,7 @@ class MysUserAdmin(UserAdmin):
     list_display = ('email', 'username', 'first_name', 'last_name', 'last_login', 
                     'date_joined', 'is_active')
     list_filter = ()
+    list_editable = ('is_active',)
     fieldsets = ()
     filter_horizontal = ()
     ordering = ('-date_joined',)

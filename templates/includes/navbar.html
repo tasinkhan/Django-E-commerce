@@ -60,10 +60,17 @@
         <div class="col-lg-3 col-sm-6 col-8 order-2 order-lg-3">
                     <div class="d-flex justify-content-end mb-3 mb-lg-0">
                         <div class="widget-header">
+                            {% if request.user.is_authenticated %}
+                            <small class="title text-muted">Welcome {{user.first_name}}!</small>
+                            {% else %}
                             <small class="title text-muted">Welcome guest!</small>
-                            <div> 
-                                <a href="{% url 'accounts:login' %}">Sign in</a> <span class="dark-transp"> | </span>
-                                <a href="{% url 'accounts:register' %}"> Register</a>
+                            {% endif %}
+                            <div>
+                                {% if request.user.is_authenticated %}
+                                <a href="{% url 'accounts:logout' %}">Logout</a> <span class="dark-transp"> | </span> <a href="{% url 'accounts:register' %}"> Register</a>
+                                {% else %}
+                                <a href="{% url 'accounts:login' %}">Sign in</a> <span class="dark-transp"> | </span> <a href="{% url 'accounts:register' %}"> Register</a>
+                                {% endif %}
                             </div>
                         </div>
                         <a href="{% url 'cart:cart' %}" class="widget-header pl-3 ml-3">
