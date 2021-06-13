@@ -4,6 +4,13 @@ from .models import Account
 from .forms import RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
+
 # Create your views here.
 def register(request):
     form = RegisterForm()
@@ -21,6 +28,19 @@ def register(request):
                             )
             user.contact_no  = contact_no
             user.save()
+
+            # User Activation
+            current_site = get_current_site(request)
+            mail_subject = ('Activate your account using this link')
+            message_body = render_to_string('accounts/account_activation_email.html',context={
+                'user'      :user,
+                'domain'    :current_site,
+                'uid'       :urlsafe_base64_encode(force_bytes(user.pk)),
+                'token'     :default_token_generator.make_token(user),
+            })
+            email_to = email
+            send_mail = EmailMessage(mail_subject, message_body, to=[email_to])
+            send_mail.send()
             messages.success(request,'Registration Successfull')
             return redirect('accounts:register')
 
@@ -49,3 +69,19 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('accounts:login')
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Account._default_manager.get(pk=uid)
+    except(ValueError,TypeError, OverflowError, Account.DoesNotExist):
+        user = None
+    
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Activation Successfull")
+        return redirect('accounts:login')
+    else:
+        messages.error(request, 'Inavlid activation link')
+        return redirect('accounts:register')
