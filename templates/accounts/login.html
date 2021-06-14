@@ -5,6 +5,13 @@
 <!-- ========================= SECTION CONTENT ========================= -->
 <section class="section-conten padding-y" style="min-height:84vh">
 
+    {% if request.GET.command == 'verification' %}
+    <div class="container alert alert-info text-center" role="alert" style="max-width:900px; margin-top: 100px;">
+    Thank you for registering with us. We have sent you an activation link in your email address: {{request.GET.email}}. To activate your account click on the link and login with your credentials.
+    </div>  
+
+    {% else %}
+
     <!-- ============================ COMPONENT LOGIN   ================================= -->
         <div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
           <div class="card-body">
@@ -33,7 +40,7 @@
          <p class="text-center mt-4">Don't have account? <a href="{% url 'accounts:register' %}">Sign up</a></p>
          <br><br>
     <!-- ============================ COMPONENT LOGIN  END.// ================================= -->
-    
+    {% endif %}
     
     </section>
     <!-- ========================= SECTION CONTENT END// ========================= -->

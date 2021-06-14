@@ -30,9 +30,9 @@ def register(request):
             user.save()
 
             # User Activation
-            current_site = get_current_site(request)
-            mail_subject = ('Activate your account using this link')
-            message_body = render_to_string('accounts/account_activation_email.html',context={
+            current_site    = get_current_site(request)
+            mail_subject    = ('Activate your account using this link')
+            message_body    = render_to_string('accounts/account_activation_email.html',context={
                 'user'      :user,
                 'domain'    :current_site,
                 'uid'       :urlsafe_base64_encode(force_bytes(user.pk)),
@@ -41,21 +41,21 @@ def register(request):
             email_to = email
             send_mail = EmailMessage(mail_subject, message_body, to=[email_to])
             send_mail.send()
-            messages.success(request,'Registration Successfull')
-            return redirect('accounts:register')
+            # messages.success(request,'Registration Successfull')
+            return redirect('/accounts/login/?command=verification&email='+email)
 
     else:
         form = RegisterForm()
-    context={
+    context = {
         'form':form
     }
     return render(request, 'accounts/register.html', context)
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
-        user = authenticate(request, email=email, password=password)
+        email       = request.POST['email']
+        password    = request.POST['password']
+        user        = authenticate(request, email=email, password=password)
 
         if user is not None:
             login(request, user)
