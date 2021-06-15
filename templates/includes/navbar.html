@@ -67,7 +67,7 @@
                             {% endif %}
                             <div>
                                 {% if request.user.is_authenticated %}
-                                <a href="{% url 'accounts:logout' %}">Logout</a> <span class="dark-transp"> | </span> <a href="{% url 'accounts:register' %}"> Register</a>
+                                <a href="{% url 'accounts:dashboard' %}"> Dashboard</a><span class="dark-transp"> |<a href="{% url 'accounts:register' %}"> Register</a> </span><a href="{% url 'accounts:logout' %}">Logout</a> 
                                 {% else %}
                                 <a href="{% url 'accounts:login' %}">Sign in</a> <span class="dark-transp"> | </span> <a href="{% url 'accounts:register' %}"> Register</a>
                                 {% endif %}
