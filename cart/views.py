@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from store.models import Product, Variation
 from cart.models import Cart, CartItem
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
 # Create your views here.
@@ -99,8 +100,12 @@ def cart(request, total=0, quantity=0, cart_items=None):
     try:
         tax = 0,
         grand_total = 0,
-        cart = Cart.objects.get(cart_id=_cart_id(request))
-        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+       
+        if request.user.is_authenticated:
+            cart_items = CartItem.objects.filter(user=request.user)
+        else:
+            cart = Cart.objects.get(cart_id=_cart_id(request))
+            cart_items = CartItem.objects.filter(cart=cart, is_active=True)
         for cart_item in cart_items:
             total += cart_item.product.price * cart_item.quantity
             quantity += cart_item.quantity
@@ -118,3 +123,28 @@ def cart(request, total=0, quantity=0, cart_items=None):
         'grand_total'   :grand_total
     }
     return render(request, 'store/cart.html', context)
+
+@login_required
+def checkout(request, total=0, quantity=0, cart_items=None):
+    try:
+        tax = 0,
+        grand_total = 0,
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+        for cart_item in cart_items:
+            total += cart_item.product.price * cart_item.quantity
+            quantity += cart_item.quantity
+        tax = (total * 7)/100
+        grand_total = total + tax
+
+    except ObjectDoesNotExist:
+        pass
+    
+    context = {
+        'cart_items'    :cart_items,
+        'total'         :total,
+        'quantity'      :quantity,
+        'tax'           :tax,
+        'grand_total'   :grand_total
+    }
+    return render(request, 'store/checkout.html', context)
