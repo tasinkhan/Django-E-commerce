@@ -1,3 +1,4 @@
+from django.db.models import query
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Account
@@ -12,6 +13,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 from cart.models import Cart, CartItem
 from cart.views import _cart_id
+import requests
 from django.http import HttpResponse
 
 # Create your views here.
@@ -87,6 +89,38 @@ def login_view(request):
                 if is_cart_item_exists:
                     cart_item = CartItem.objects.filter(cart=cart)
 
+                    #getting product variation using cart id
+                    product_variation = []
+                    for item in cart_item:
+                        variation = item.variations.all()
+                        product_variation.append(list(variation))
+                    
+                    #getting cart item from the user to access his variations
+                    cart_item = CartItem.objects.filter(
+                    user=user
+                    )
+                    '''
+                    existing variations
+                    current variations(product_variation)
+                    item_id
+                    '''
+                    existing_variations_list = []
+                    id = []
+                    for item in cart_item:
+                        existing_variations = item.variations.all()
+                        existing_variations_list.append(list(existing_variations))
+                        id.append(item.id)
+                    
+                    for pr in product_variation:
+                        if pr in existing_variations_list:
+                            index = existing_variations_list.index(pr)
+                            item_id = id[index]
+                            item = CartItem.objects.get(id=item_id)
+                            item.quantity += 1
+                            item.user = user
+                            item.save()
+                else:
+                    cart_item = CartItem.objects.filter(cart=cart)
                     for item in cart_item:
                         item.user = user
                         item.save()
@@ -94,7 +128,17 @@ def login_view(request):
                 pass
             login(request, user)
             messages.success(request,'You are now logged in ')
-            return redirect('accounts:dashboard')
+            url = request.META.get('HTTP_REFERER')
+            try:
+                query = requests.utils.urlparse(url).query
+                print(query)
+                params = dict(x.split('=') for x in query.split('&'))
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+                
+            except:
+                return redirect('accounts:dashboard')
         else:
             messages.error(request, 'Invalid login credentials')
             return redirect('accounts:login')
